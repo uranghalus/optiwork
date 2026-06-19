@@ -1,25 +1,19 @@
 import {
     LayoutDashboard,
-    Package,
-    Boxes,
-    Tags,
-    MapPin,
-    Handshake,
-    Move,
-    History,
-    UserCircle,
-    Sliders,
-    Upload,
-    ArchiveX,
-    CheckSquare,
-    Building2,
+    Briefcase,
+    Wrench,
+    ListTodo,
+    CalendarClock,
+    CalendarRange,
+    FileCheck,
+    Inbox,
+    Send,
+    Building,
+    Users,
     Network,
-    Layers,
-    Warehouse,
-    ClipboardList,
-
-    User,
+    UserCircle,
     Shield,
+    Settings,
 } from 'lucide-react';
 
 import { SidebarData } from '@/types';
@@ -27,8 +21,8 @@ import { SidebarData } from '@/types';
 export const sidebarData: SidebarData = {
     teams: [
         {
-            name: 'DutaAsset',
-            logo: Package,
+            name: 'OptiWork',
+            logo: Briefcase,
             plan: 'v1.0.0',
         },
     ],
@@ -46,95 +40,71 @@ export const sidebarData: SidebarData = {
             ],
         },
 
-        // ---------- MANAJEMEN ASET ----------
+        // ---------- MANAJEMEN KERJA (WORKFLOW) ----------
         {
-            title: 'Manajemen Aset',
+            title: 'Manajemen Kerja',
             items: [
                 {
-                    title: 'Daftar Aset',
-                    url: '/assets',
-                    icon: Boxes,
-                    permission: { resource: 'asset', actions: ['view'] },
+                    title: 'Work Orders',
+                    url: '/work-orders',
+                    icon: Wrench,
+                    permission: { resource: 'work_order', actions: ['view'] },
                 },
                 {
-                    title: 'Klasifikasi Aset',
-                    url: '/asset-classification',
-                    icon: Tags,
-                    permission: { resource: 'asset.classification', actions: ['view'] },
+                    title: 'Work Planning',
+                    url: '/work-plannings',
+                    icon: ListTodo,
+                    permission: { resource: 'work_planning', actions: ['view'] },
                 },
                 {
-                    title: 'Master Item',
-                    url: '/items',
-                    icon: Package,
-                    permission: { resource: 'inventory', actions: ['view'] },
+                    title: 'Work Daily',
+                    url: '/work-dailies',
+                    icon: CalendarClock,
+                    permission: { resource: 'work_daily', actions: ['view'] },
                 },
                 {
-                    title: 'Kategori',
-                    url: '/categories',
-                    icon: Tags,
-                    permission: { resource: 'asset.category', actions: ['view'] },
+                    title: 'Jadwal Rutin',
+                    url: '/work-schedules',
+                    icon: CalendarRange,
+                    permission: { resource: 'work_schedule', actions: ['view'] },
                 },
                 {
-                    title: 'Lokasi',
-                    url: '/locations',
-                    icon: MapPin,
-                    permission: { resource: 'asset.location', actions: ['view'] },
-                },
-                {
-                    title: 'Mutasi Aset',
-                    url: '/asset-transfers',
-                    icon: Move,
-                    permission: { resource: 'asset.transfer', actions: ['view'] },
-                },
-                {
-                    title: 'Penghapusan Aset',
-                    url: '/asset-disposals',
-                    icon: ArchiveX,
-                    permission: { resource: 'asset', actions: ['delete'] },
-                },
-                {
-                    title: 'Audit Log',
-                    url: '/audit-logs',
-                    icon: History,
-                    permission: { resource: 'audit.log', actions: ['view'] },
+                    title: 'Hasil Pekerjaan',
+                    url: '/work-data',
+                    icon: FileCheck,
+                    permission: { resource: 'work_data', actions: ['view'] },
                 },
             ],
         },
 
-        // ---------- PERSEDIAAN ----------
+        // ---------- PERSURATAN ----------
         {
-            title: 'Persediaan',
+            title: 'Persuratan',
             items: [
                 {
-                    title: 'Stok Barang',
-                    url: '/stocks',
-                    icon: Warehouse,
-                    permission: { resource: 'inventory', actions: ['view'] },
+                    title: 'Surat Masuk',
+                    url: '/letters/incoming',
+                    icon: Inbox,
+                    permission: { resource: 'letter.incoming', actions: ['view'] },
                 },
                 {
-                    title: 'Transaksi Stok',
-                    url: '/stock-transactions',
-                    icon: ClipboardList,
-                    permission: { resource: 'inventory', actions: ['view'] },
+                    title: 'Surat Keluar',
+                    url: '/letters/outgoing',
+                    icon: Send,
+                    permission: { resource: 'letter.outgoing', actions: ['view'] },
                 },
             ],
         },
 
-        // ---------- OPERASIONAL ----------
+        // ---------- MITRA & LOKASI ----------
         {
-            title: 'Operasional',
+            title: 'Mitra & Lokasi',
             items: [
                 {
-                    title: 'Peminjaman Aset',
-                    url: '/asset-loans',
-                    icon: Handshake,
-                    permission: { resource: 'asset.loan', actions: ['view'] },
-                },
-                {
-                    title: 'Persetujuan',
-                    url: '/approvals',
-                    icon: CheckSquare,
-                    permission: { resource: 'asset.transfer', actions: ['approve'] },
+                    title: 'Daftar Tenant',
+                    url: '/tenants',
+                    icon: Building,
+                    permission: { resource: 'tenant', actions: ['view'] },
                 },
             ],
         },
@@ -144,43 +114,25 @@ export const sidebarData: SidebarData = {
             title: 'Organisasi',
             items: [
                 {
-                    title: 'Organisasi',
-                    url: '/organizations',
-                    icon: Building2,
-                    permission: { resource: 'ac', actions: ['view'] },
-                },
-                {
-                    title: 'Department',
+                    title: 'Departemen',
                     url: '/departments',
                     icon: Network,
                     permission: { resource: 'department', actions: ['view'] },
                 },
                 {
-                    title: 'Divisi',
-                    url: '/divisions',
-                    icon: Layers,
-                    permission: { resource: 'division', actions: ['view'] },
-                },
-                {
-                    title: 'Pengguna',
-                    url: '/users',
-                    icon: User,
-                    permission: { resource: 'user', actions: ['view'] },
-                },
-                {
-                    title: 'Tim',
-                    url: '/teams',
-                    icon: Layers,
-                    permission: { resource: 'team', actions: ['view'] },
-                },
-                {
-                    title: 'Anggota',
-                    url: '/members',
-                    icon: UserCircle,
+                    title: 'Karyawan (PIC)',
+                    url: '/employees',
+                    icon: Users,
                     permission: { resource: 'employee', actions: ['view'] },
                 },
                 {
-                    title: 'Role',
+                    title: 'Pengguna Sistem',
+                    url: '/users',
+                    icon: UserCircle,
+                    permission: { resource: 'user', actions: ['view'] },
+                },
+                {
+                    title: 'Hak Akses & Role',
                     url: '/roles',
                     icon: Shield,
                     permission: { resource: 'role', actions: ['view'] },
@@ -193,20 +145,10 @@ export const sidebarData: SidebarData = {
             title: 'Pengaturan',
             items: [
                 {
-                    title: 'Profil',
-                    url: '/settings/profile',
-                    icon: UserCircle,
-                },
-                {
-                    title: 'Preferensi',
-                    url: '/settings/preferences',
-                    icon: Sliders,
-                },
-                {
-                    title: 'Impor & Ekspor',
-                    url: '/settings/import-export',
-                    icon: Upload,
-                    permission: { resource: 'asset', actions: ['import'] },
+                    title: 'Sistem',
+                    url: '/settings/system',
+                    icon: Settings,
+                    permission: { resource: 'setting', actions: ['manage'] },
                 },
             ],
         },

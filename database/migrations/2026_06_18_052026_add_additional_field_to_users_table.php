@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string('department')->nullable();
             $table->string('position')->nullable();
             // User Login Log
+            $table->string('phone')->nullable();
             $table->timestamp('last_login_at')->nullable();
             $table->string('last_login_ip')->nullable();
         });

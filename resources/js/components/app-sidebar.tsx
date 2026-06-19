@@ -17,24 +17,25 @@ export function AppSidebar() {
     const TeamLogo = sidebarData.teams[0].logo;
 
     return (
-        <Sidebar collapsible="icon" variant="sidebar" className="bg-sidebar">
-            <SidebarHeader className="px-3 pt-4">
+        <Sidebar collapsible="icon" variant="sidebar" className="border-sidebar-border bg-sidebar border-r shadow-sm">
+            {/* ── Brand Header ───────────────────────────────────── */}
+            <SidebarHeader className="px-3 pt-4 pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="rounded-2xl bg-sidebar-accent/5 p-3 transition duration-150 ease-out hover:bg-sidebar-accent/10"
+                            className="bg-sidebar-accent/50 hover:bg-sidebar-accent rounded-xl px-3 py-2.5 transition-all duration-200"
                         >
                             <Link href="/dashboard" prefetch className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-sm shadow-indigo-600/20">
-                                    <TeamLogo className="size-5" />
+                                <div className="from-primary shadow-primary/25 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br to-violet-600 text-white shadow-md">
+                                    <TeamLogo className="h-5 w-5" />
                                 </div>
-                                <div className="min-w-0 transition-all duration-150">
-                                    <p className="truncate text-sm font-semibold text-sidebar-foreground group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+                                <div className="min-w-0 transition-all duration-200">
+                                    <p className="text-sidebar-foreground truncate text-sm font-bold group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
                                         {sidebarData.teams[0].name}
                                     </p>
-                                    <p className="mt-1 text-xs text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">
+                                    <p className="text-sidebar-foreground/50 mt-0.5 text-[11px] font-medium group-data-[collapsible=icon]:hidden">
                                         {sidebarData.teams[0].plan}
                                     </p>
                                 </div>
@@ -44,14 +45,16 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarSeparator className="mx-3" />
+            <SidebarSeparator className="mx-4" />
 
-            <SidebarContent className="gap-0 px-2 py-3">
+            {/* ── Navigation ─────────────────────────────────────── */}
+            <SidebarContent className="gap-0 px-2 py-2">
                 <NavMain groups={sidebarData.navGroups} />
             </SidebarContent>
 
-            <SidebarFooter className="mt-auto px-3 pb-4 pt-4">
-                <div className="transition-all duration-150 group-data-[collapsible=icon]:justify-center">
+            {/* ── User Footer ────────────────────────────────────── */}
+            <SidebarFooter className="border-sidebar-border/50 mt-auto border-t px-3 pt-3 pb-4">
+                <div className="transition-all duration-200 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                     <NavUser />
                 </div>
             </SidebarFooter>

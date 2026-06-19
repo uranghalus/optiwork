@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
+
 class AuthController extends Controller
 {
     //
@@ -20,8 +21,10 @@ class AuthController extends Controller
     {
         try {
             // 1. Ambil profil user dari OIDC Perusahaan
-            $ssoUser = Socialite::driver('oidc')->user();
-
+            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            $driver = Socialite::driver('oidc');
+            $ssoUser = $driver->stateless()->user();
+            // dd($ssoUser);
             // Data mentah (raw) dari SSO disimpan di $ssoUser->user (array)
             $rawData = $ssoUser->user ?? [];
 
@@ -32,6 +35,7 @@ class AuthController extends Controller
                     'name'          => $ssoUser->getName(),
                     'email'         => $ssoUser->getEmail(),
                     'password'      => null, // SSO user tidak memiliki password lokal
+                    'phone'         => $rawData['phone'] ?? null,
                     'department'    => $rawData['department'] ?? null,
                     'position'      => $rawData['position'] ?? null,
                     'last_login_at' => $rawData['last_login_at'] ?? now(),
@@ -47,7 +51,6 @@ class AuthController extends Controller
 
             // 5. Redirect ke dashboard
             return redirect()->intended('/dashboard');
-
         } catch (\Exception $e) {
             \Log::error('OIDC SSO Callback Error: ' . $e->getMessage());
 
