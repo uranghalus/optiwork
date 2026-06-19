@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TenantController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +15,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    // Tenant CRUD routes
+    Route::resource('tenants', TenantController::class)->except(['show', 'create', 'edit']);
+    Route::post('tenants/bulk-destroy', [TenantController::class, 'bulkDestroy'])->name('tenants.bulk-destroy');
 });
 
 require __DIR__ . '/settings.php';

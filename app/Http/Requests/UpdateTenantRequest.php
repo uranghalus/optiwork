@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTenantRequest extends FormRequest
+class UpdateTenantRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,7 +32,7 @@ class StoreTenantRequest extends FormRequest
             'status'       => ['required', 'in:active,inactive,suspended'],
             'type'         => ['nullable', 'string', 'max:100'],
             'description'  => ['nullable', 'string'],
-            'logo'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
+            'logo'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'], // Validasi file gambar
         ];
     }
 }
