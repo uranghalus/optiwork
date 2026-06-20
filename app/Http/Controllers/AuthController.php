@@ -25,9 +25,9 @@ class AuthController extends Controller
             /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
             $driver = Socialite::driver('oidc');
             $ssoUser = $driver->stateless()->user();
-            // dd($ssoUser);
             // Data mentah (raw) dari SSO disimpan di $ssoUser->user (array)
             $rawData = $ssoUser->user ?? [];
+            dd($ssoUser);
 
             // 2. Cari user berdasarkan email, atau buat baru jika belum ada (Upsert)
             $user = User::updateOrCreate(
@@ -36,7 +36,7 @@ class AuthController extends Controller
                     'name'          => $ssoUser->getName(),
                     'email'         => $ssoUser->getEmail(),
                     'password'      => null, // SSO user tidak memiliki password lokal
-                    'phone'         => $rawData['phone'] ?? null,
+                    'phone'         => $rawData['whatsapp_number'] ?? $rawData['phone_number'] ?? $rawData['phone'] ?? null,
                     'department'    => $rawData['department'] ?? null,
                     'position'      => $rawData['position'] ?? null,
                     'last_login_at' => $rawData['last_login_at'] ?? now(),

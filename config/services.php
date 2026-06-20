@@ -39,6 +39,7 @@ return [
         'client_id' => env('OIDC_CLIENT_ID'),
         'client_secret' => env('OIDC_CLIENT_SECRET'),
         'redirect' => env('OIDC_REDIRECT_URI'),
+        'user_info_url' => env('OIDC_USER_INFO_URL'),
         'guzzle' => [
             'http_errors' => false,
         ],
