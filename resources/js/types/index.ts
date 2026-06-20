@@ -78,6 +78,24 @@ export interface Tenant {
     updated_at: string;
 }
 
+export interface WorkOrder {
+    id: number;
+    work_order_number: string;
+    tenant_id: number | null;
+    reporter_id: number | null;
+    order_date: string;
+    title: string;
+    job_description: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    status: 'open' | 'in_progress' | 'pending' | 'resolved' | 'closed';
+    department_id: number | string | null;
+    attachment_path: string | null;
+    attachment_url: string | null;
+    tenant?: Pick<Tenant, 'id' | 'name' | 'company_name'> | null;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface PaginatedData<T> {
     data: T[];
     current_page: number;

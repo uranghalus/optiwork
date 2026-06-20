@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -52,7 +53,7 @@ class AuthController extends Controller
             // 5. Redirect ke dashboard
             return redirect()->intended('/dashboard');
         } catch (\Exception $e) {
-            \Log::error('OIDC SSO Callback Error: ' . $e->getMessage());
+            Log::error('OIDC SSO Callback Error: ' . $e->getMessage());
 
             return redirect('/')->with('error', 'Terjadi kesalahan saat login SSO: ' . $e->getMessage());
         }
