@@ -27,7 +27,7 @@ class AuthController extends Controller
             $ssoUser = $driver->stateless()->user();
             // Data mentah (raw) dari SSO disimpan di $ssoUser->user (array)
             $rawData = $ssoUser->user ?? [];
-            dd($ssoUser);
+            // dd($ssoUser);
 
             // 2. Cari user berdasarkan email, atau buat baru jika belum ada (Upsert)
             $user = User::updateOrCreate(

@@ -17,7 +17,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { type Tenant, type WorkOrder } from '@/types';
+import { type WorkOrder } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from '@inertiajs/react';
 import {
@@ -39,21 +39,25 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useCallback, useRef, useState } from 'react';
 
-// ── Priority config ────────────────────────────────────────────────────────────
 const PRIORITY_CONFIG = {
-    low: { label: 'Rendah', color: 'border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-500/10 dark:text-slate-400' },
-    medium: { label: 'Sedang', color: 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
-    high: { label: 'Tinggi', color: 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400' },
-    urgent: { label: 'Mendesak', color: 'border-red-300 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-500/10 dark:text-red-400' },
+    normal: {
+        label: 'Normal',
+        color: 'border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-500/10 dark:text-slate-400',
+    },
+    urgent_request_by_owner: {
+        label: 'Urgent Request By Owner',
+        color: 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
+    },
+    urgent_by_accident: {
+        label: 'Urgent By Accident',
+        color: 'border-red-300 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-500/10 dark:text-red-400',
+    },
 } as const;
 
-// ── Validation schema ──────────────────────────────────────────────────────────
-// HAPUS status dari schema, TAMBAH department_id
 const workOrderSchema = z.object({
     title: z.string().min(1, 'Judul wajib diisi').max(255, 'Maksimal 255 karakter'),
     job_description: z.string().min(1, 'Deskripsi pekerjaan wajib diisi'),
-    priority: z.enum(['low', 'medium', 'high', 'urgent'], { message: 'Prioritas wajib dipilih' }),
-    tenant_id: z.string().nullable().optional(),
+    priority: z.enum(['normal', 'urgent_request_by_owner', 'urgent_by_accident'], { message: 'Prioritas wajib dipilih' }),
     department_id: z.string().min(1, 'Departemen tujuan wajib dipilih'),
 });
 
@@ -63,12 +67,10 @@ interface WorkOrderFormProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     workOrder?: WorkOrder | null;
-    tenants: Pick<Tenant, 'id' | 'name' | 'company_name'>[];
-    // Menerima data departemen dari Controller
     departments: { id: string | number; name: string }[];
 }
 
-export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departments = [] }: WorkOrderFormProps) {
+export function WorkOrderForm({ open, onOpenChange, workOrder, departments = [] }: WorkOrderFormProps) {
     const isEdit = !!workOrder;
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -79,8 +81,7 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
         defaultValues: {
             title: '',
             job_description: '',
-            priority: 'medium',
-            tenant_id: null,
+            priority: 'normal',
             department_id: '',
         },
     });
@@ -98,7 +99,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
 
     const watchPriority = watch('priority');
 
-    // Reset form when workOrder or open changes
     const handleOpenChange = useCallback((isOpen: boolean) => {
         if (isOpen) {
             setFile(null);
@@ -107,8 +107,7 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                 reset({
                     title: workOrder.title ?? '',
                     job_description: workOrder.job_description ?? '',
-                    priority: workOrder.priority ?? 'medium',
-                    tenant_id: workOrder.tenant_id?.toString() ?? null,
+                    priority: workOrder.priority ?? 'normal',
                     department_id: workOrder.department_id?.toString() ?? '',
                 });
                 if (workOrder.attachment_url) {
@@ -118,8 +117,7 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                 reset({
                     title: '',
                     job_description: '',
-                    priority: 'medium',
-                    tenant_id: null,
+                    priority: 'normal',
                     department_id: '',
                 });
             }
@@ -131,7 +129,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
             setFile(selectedFile);
-            // Generate preview for images
             if (selectedFile.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onloadend = () => setFilePreview(reader.result as string);
@@ -151,16 +148,12 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
     const onSubmit = (data: WorkOrderFormValues) => {
         setProcessing(true);
 
-        // Build FormData for file upload support
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('job_description', data.job_description);
         formData.append('priority', data.priority);
-        formData.append('department_id', data.department_id); // Tambah payload departemen
+        formData.append('department_id', data.department_id);
 
-        if (data.tenant_id) {
-            formData.append('tenant_id', data.tenant_id);
-        }
         if (file) {
             formData.append('attachment', file);
         }
@@ -206,7 +199,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                 </DialogHeader>
 
                 <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-5">
-                    {/* ── Section: Info Utama ──────────────────────────────────── */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             <FileText className="h-3.5 w-3.5" />
@@ -236,89 +228,48 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                         </Field>
                     </div>
 
-                    {/* ── Section: Penugasan & Lokasi ──────────────────────────────────────── */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             <Building2 className="h-3.5 w-3.5" />
-                            <span>Tujuan Penugasan & Lokasi</span>
+                            <span>Departemen Tujuan</span>
                             <div className="flex-1 border-t border-border/60" />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <Field>
-                                <FieldLabel htmlFor="department_id">Departemen Tujuan *</FieldLabel>
-                                <Controller
-                                    name="department_id"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            value={field.value}
-                                            onValueChange={field.onChange}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Pilih departemen" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {departments.length === 0 && (
-                                                    <div className="px-3 py-2 text-sm text-muted-foreground">
-                                                        Memuat departemen...
-                                                    </div>
-                                                )}
-                                                {departments.map((d) => (
-                                                    <SelectItem key={d.id} value={d.id.toString()}>
-                                                        <span className="flex items-center gap-2">
-                                                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                                                            {d.name}
-                                                        </span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                {errors.department_id && <FieldError>{errors.department_id.message}</FieldError>}
-                            </Field>
-
-                            <Field>
-                                <FieldLabel htmlFor="tenant_id">Tenant / Lokasi (Opsional)</FieldLabel>
-                                <Controller
-                                    name="tenant_id"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            value={field.value ?? ''}
-                                            onValueChange={(val) => field.onChange(val || null)}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Pilih tenant / lokasi" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {tenants.length === 0 && (
-                                                    <div className="px-3 py-2 text-sm text-muted-foreground">
-                                                        Belum ada tenant tersedia
-                                                    </div>
-                                                )}
-                                                {tenants.map((t) => (
-                                                    <SelectItem key={t.id} value={t.id.toString()}>
-                                                        <span className="flex items-center gap-2">
-                                                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                                            {t.name}
-                                                            {t.company_name && (
-                                                                <span className="text-muted-foreground text-xs">({t.company_name})</span>
-                                                            )}
-                                                        </span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                {errors.tenant_id && <FieldError>{errors.tenant_id.message}</FieldError>}
-                            </Field>
-                        </div>
+                        <Field>
+                            <FieldLabel htmlFor="department_id">Departemen Tujuan *</FieldLabel>
+                            <Controller
+                                name="department_id"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih departemen" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {departments.length === 0 && (
+                                                <div className="px-3 py-2 text-sm text-muted-foreground">
+                                                    Memuat departemen...
+                                                </div>
+                                            )}
+                                            {departments.map((d) => (
+                                                <SelectItem key={d.id} value={d.id.toString()}>
+                                                    <span className="flex items-center gap-2">
+                                                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                                                        {d.name}
+                                                    </span>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {errors.department_id && <FieldError>{errors.department_id.message}</FieldError>}
+                        </Field>
                     </div>
 
-                    {/* ── Section: Prioritas ──────────────────────────── */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             <Sparkles className="h-3.5 w-3.5" />
@@ -327,7 +278,7 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                         </div>
 
                         <Field>
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                 {(Object.keys(PRIORITY_CONFIG) as Array<keyof typeof PRIORITY_CONFIG>).map((p) => (
                                     <button
                                         key={p}
@@ -347,7 +298,30 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                         </Field>
                     </div>
 
-                    {/* ── Section: Attachment ──────────────────────────────────── */}
+                    {watchPriority === 'urgent_by_accident' && (
+                        <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-500/20 dark:bg-red-500/5">
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                            <div>
+                                <p className="text-sm font-medium text-red-700 dark:text-red-400">Urgent By Accident</p>
+                                <p className="text-xs text-red-600/80 dark:text-red-400/70">
+                                    Work order ini akan langsung dieksekusi tanpa jadwal
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {watchPriority === 'urgent_request_by_owner' && (
+                        <div className="flex items-start gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-500/20 dark:bg-amber-500/5">
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                            <div>
+                                <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Urgent Request By Owner</p>
+                                <p className="text-xs text-amber-600/80 dark:text-amber-400/70">
+                                    Prioritas tinggi, namun tetap bisa dijadwalkan
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             <Paperclip className="h-3.5 w-3.5" />
@@ -356,7 +330,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                         </div>
 
                         <div className="space-y-3">
-                            {/* Existing attachment preview (edit mode) */}
                             {isEdit && workOrder?.attachment_url && !file && (
                                 <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 p-3">
                                     {filePreview ? (
@@ -380,7 +353,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                                 </div>
                             )}
 
-                            {/* New file upload area */}
                             {file ? (
                                 <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
                                     {filePreview ? (
@@ -428,19 +400,6 @@ export function WorkOrderForm({ open, onOpenChange, workOrder, tenants, departme
                             )}
                         </div>
                     </div>
-
-                    {/* ── Info hint ────────────────────────────────────────────── */}
-                    {watchPriority === 'urgent' && (
-                        <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-500/20 dark:bg-red-500/5">
-                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
-                            <div>
-                                <p className="text-sm font-medium text-red-700 dark:text-red-400">Prioritas Mendesak</p>
-                                <p className="text-xs text-red-600/80 dark:text-red-400/70">
-                                    Work order ini akan ditandai sebagai prioritas tinggi dan departemen tujuan akan mendapat notifikasi segera.
-                                </p>
-                            </div>
-                        </div>
-                    )}
 
                     <DialogFooter className="gap-2 sm:gap-0">
                         <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={processing}>

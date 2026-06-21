@@ -9,28 +9,24 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { type WorkOrder } from '@/types';
+import { router } from '@inertiajs/react';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Building2, MoreHorizontal, Paperclip, Pencil, Trash2, Wrench } from 'lucide-react';
+import { Building2, Eye, MoreHorizontal, Paperclip, Pencil, Trash2, Wrench } from 'lucide-react';
 
 function PriorityBadge({ priority }: { priority: WorkOrder['priority'] }) {
     const config = {
-        low: {
-            label: 'Rendah',
+        normal: {
+            label: 'Normal',
             className:
                 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-500/15 dark:text-slate-400 dark:border-slate-500/20',
         },
-        medium: {
-            label: 'Sedang',
-            className:
-                'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/20',
-        },
-        high: {
-            label: 'Tinggi',
+        urgent_request_by_owner: {
+            label: 'Urgent Request',
             className:
                 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/20',
         },
-        urgent: {
-            label: 'Mendesak',
+        urgent_by_accident: {
+            label: 'Urgent (Accident)',
             className:
                 'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/15 dark:text-red-400 dark:border-red-500/20',
         },
@@ -45,28 +41,48 @@ function PriorityBadge({ priority }: { priority: WorkOrder['priority'] }) {
 
 function StatusBadge({ status }: { status: WorkOrder['status'] }) {
     const config = {
-        open: {
-            label: 'Terbuka',
+        pending_review: {
+            label: 'Menunggu Review',
             className:
                 'bg-sky-50 text-sky-600 border-sky-200 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-500/20',
         },
-        in_progress: {
-            label: 'Dalam Proses',
+        planning: {
+            label: 'Perencanaan',
             className:
                 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-400 dark:border-indigo-500/20',
         },
-        pending: {
-            label: 'Menunggu',
+        assigned: {
+            label: 'Ditugaskan',
+            className:
+                'bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-500/15 dark:text-violet-400 dark:border-violet-500/20',
+        },
+        in_progress: {
+            label: 'Dalam Pengerjaan',
+            className:
+                'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:border-blue-500/20',
+        },
+        submitted: {
+            label: 'Menunggu Verifikasi',
             className:
                 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/20',
         },
-        resolved: {
-            label: 'Selesai',
+        verified: {
+            label: 'Terverifikasi',
             className:
                 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/20',
         },
-        closed: {
-            label: 'Ditutup',
+        rejected: {
+            label: 'Ditolak',
+            className:
+                'bg-red-50 text-red-600 border-red-200 dark:bg-red-500/15 dark:text-red-400 dark:border-red-500/20',
+        },
+        revision: {
+            label: 'Revisi',
+            className:
+                'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/15 dark:text-orange-400 dark:border-orange-500/20',
+        },
+        cancelled: {
+            label: 'Dibatalkan',
             className:
                 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-500/15 dark:text-slate-400 dark:border-slate-500/20',
         },
@@ -166,11 +182,11 @@ export function getWorkOrderColumns({
             },
         },
         {
-            accessorKey: 'tenant',
-            header: 'Lokasi',
+            accessorKey: 'department',
+            header: 'Department',
             cell: ({ row }) => {
-                const tenant = row.original.tenant;
-                if (!tenant) {
+                const department = row.original.department;
+                if (!department) {
                     return <span className="text-xs text-muted-foreground">\u2014</span>;
                 }
                 return (
@@ -179,10 +195,7 @@ export function getWorkOrderColumns({
                             <Building2 className="h-3.5 w-3.5 text-violet-500" />
                         </div>
                         <div className="min-w-0">
-                            <p className="truncate text-xs font-medium text-foreground">{tenant.name}</p>
-                            {tenant.company_name && (
-                                <p className="truncate text-[11px] text-muted-foreground">{tenant.company_name}</p>
-                            )}
+                            <p className="truncate text-xs font-medium text-foreground">{department.name}</p>
                         </div>
                     </div>
                 );
@@ -216,6 +229,10 @@ export function getWorkOrderColumns({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-[160px]">
+                                <DropdownMenuItem onClick={() => router.visit(route('work-orders.show', workOrder.id))}>
+                                    <Eye className="h-4 w-4" />
+                                    Lihat
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => onEdit(workOrder)}>
                                     <Pencil className="h-4 w-4" />
                                     Edit
